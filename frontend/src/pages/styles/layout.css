@@ -1,0 +1,13 @@
+.leyoutMain{
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    
+    .Outlet{
+        height: 90%;
+        width: 100%;
+        background-color: black;
+        display: flex;
+    }
+}

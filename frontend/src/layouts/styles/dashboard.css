@@ -1,0 +1,13 @@
+#dashboardPic{
+    width: 90%;
+    height: auto;
+     margin-top: 30px;
+    margin-left: 60px;
+    display: flex;
+    justify-content: center;
+    img{
+        height: 100vh;
+    border-radius: 10px;
+    box-shadow: 0 1px 5px  white;
+    }
+}

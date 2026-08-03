@@ -1,0 +1,30 @@
+#sidebar {
+    height: 85vh;
+    width: 15%;
+    background: linear-gradient(90deg, rgba(53, 62, 159, 0.343), rgba(0, 0, 0, 0.338), rgba(0, 0, 255, 0.264));
+    backdrop-filter: blur(10px);
+    box-shadow: 0 1px 5px white;
+    margin: 20px;
+    border-radius: 10px;
+
+    .box1 {
+        height: 10%;
+        width: 100%;
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        padding-left: 10px;
+        gap: 10px;
+        border-radius: 10px;
+        color: white;
+        &:hover{
+            cursor: pointer;
+        }
+
+
+        h3 {
+            color: white;
+            text-decoration: none;
+        }
+    }
+}

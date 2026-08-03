@@ -1,0 +1,100 @@
+#setting {
+    height: 85vh;
+    width: 80%;
+    margin: 20px;
+   overflow-x: hidden;
+
+    form {
+        height: 60vh;
+        width: 50%;
+        background-color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-radius: 10px;
+
+        #picLabel {
+            height: 50px;
+            width: 50px;
+            margin-top: 20px;
+
+            img {
+                height: 100px;
+                width: 100px;
+                border-radius: 50%;
+                border: 1px solid black;
+            }
+        }
+
+        #updatename {
+            display: flex;
+            flex-direction: column;
+            margin-top: 70px;
+            margin-left: 40px;
+
+            label {
+                font-size: 1.5vw;
+            }
+
+            input {
+                width: 250px;
+                height: 7vh;
+                border-radius: 10px;
+                margin-top: 10px;
+                text-align: center;
+                font-size: 1.5vw;
+            }
+        }
+
+        #profile {
+            display: none;
+        }
+
+        button {
+            margin-top: 50px;
+            padding: 10px;
+            width: 30%;
+            font-size: 2vw;
+            border-radius: 30px;
+            margin-left: 30px;
+
+            &:hover {
+                cursor: pointer;
+                background-color: rgba(0, 0, 0, 0.151);
+            }
+        }
+    }
+
+
+}
+#error {
+    height: 70px;
+    width: 400px;
+    background-color: rgba(255, 0, 0, 0.185);
+    color: white;
+    position: absolute;
+    right: 20px; /* Final destination */
+    top: 80px;   /* Adjust this so it sits nicely at the top right of your #setting box */
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 2vw;
+    /* Trigger the animation the moment React mounts this div */
+    animation: errorbox 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 3. Keyframes (Must be completely outside of any curly brackets!) */
+@keyframes errorbox {
+    from {
+        /* Start 450px to the right of its starting point (completely off-screen) */
+        transform: translateX(450px);
+        opacity: 0;
+    }
+    to {
+        /* Smoothly slide in to its resting place (right: 20px) */
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

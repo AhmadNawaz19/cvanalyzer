@@ -1,0 +1,134 @@
+#resumeUpload{
+    height: 85vh;
+    width: 80%;
+    background-color: rgba(255, 255, 255, 0.199);
+    margin: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 30px;
+
+    #mainUpload{
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        column-gap: 10px;
+        form{
+            width: 100%;
+            display: flex;
+            margin-left: 50px;
+            gap: 20px;
+        }
+    }
+
+    h1{
+        margin-top: 20px;
+        font-size: 3vw;
+        color: white;
+    }
+
+    #upload, #uploadjob{
+        height: 60vh;
+        width: 40%;
+        background: linear-gradient(150deg,rgba(53, 62, 159, 0.343), rgba(0, 0, 0, 0.338), rgba(0, 0, 255, 0.264));
+        box-shadow: 0 1px 5px  white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        #uploadhere{
+            height: 80%;
+            width: 80%;
+            background-color: rgba(255, 255, 255, 0.281);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            row-gap: 30px;
+            h1{
+                font-size: 4vw;
+            }
+            h2{
+                font-size: 2.5vw;
+                color: white;
+            }
+            h3{
+                color: white;
+                font-size: 2vw;
+            }
+            label{
+                background-color: white;
+                padding: 10px;
+                width: 40%;
+                border-radius: 40px;
+                font-size: 1vw;
+                text-align: center;
+                font-weight: bolder;
+            }
+            input{
+                display: none;
+            }
+        }
+    }
+    #uploadbtn{
+        height: 10%;
+        width: 10%;
+        margin-top: 15%;
+        border-radius: 10px;
+        font-size: 1.2vw;
+        border: 0px;
+        background-color: rgba(255, 255, 255, 0.178);
+        color: white;
+        &:hover{
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.253);
+        }
+    }
+    #uploadjob{
+        textarea{
+            height: 100%;
+            width: 100%;
+            border-radius: 10px;
+            border: 0px;
+            background-color: rgba(255, 255, 255, 0.171);
+            color: white;
+            font-size: 1.5vw;
+        }
+    }
+}
+
+
+#error {
+    height: 70px;
+    width: 400px;
+    background-color: rgba(255, 0, 0, 0.185);
+    color: white;
+    position: absolute;
+    right: 20px; /* Final destination */
+    top: 80px;   /* Adjust this so it sits nicely at the top right of your #setting box */
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 2vw;
+    /* Trigger the animation the moment React mounts this div */
+    animation: errorbox 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 3. Keyframes (Must be completely outside of any curly brackets!) */
+@keyframes errorbox {
+    from {
+        /* Start 450px to the right of its starting point (completely off-screen) */
+        transform: translateX(450px);
+        opacity: 0;
+    }
+    to {
+        /* Smoothly slide in to its resting place (right: 20px) */
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

@@ -1,0 +1,43 @@
+ #features{
+    width: 90%;
+    height: 60vh;
+     backdrop-filter: blur(40px);
+    margin-top: 20px;
+    margin-left: 60px;
+    color: white;
+    
+    #features-title{
+        padding: 10px;
+        font-size: 3vw;
+
+    }
+
+    #features-container{
+        margin-top: 20px;
+        height: 75%;
+        display: grid;
+        grid-template-columns:  repeat(4, 1fr);
+        grid-template-rows: repeat(1,2fr);
+        gap: 50px;
+
+        .feature-card{
+             background: linear-gradient(150deg,rgba(53, 62, 159, 0.343), rgba(0, 0, 0, 0.338), rgba(0, 0, 255, 0.264));
+            backdrop-filter: blur(10px);
+            box-shadow: 0 1px 5px  white;
+            border-radius: 10px;
+
+            h3{
+                font-size: 1.8vw;
+                margin: 10px;
+            }
+            p{
+                margin-left: 15px;
+                font-size: 1.5vw;
+                line-height: 24px;
+            }
+        }
+        
+    }
+
+} 
+
