@@ -172,9 +172,6 @@ const DeleteHistory = async () => {
         ) : error ? (
           <div className="state-container error-state">
             <p>{error}</p>
-            <button onClick={fetchHistoryData} className="retry-btn">
-              Retry
-            </button>
           </div>
         ) : (
           <div className="table-responsive">
