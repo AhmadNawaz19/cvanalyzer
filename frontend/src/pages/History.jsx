@@ -55,7 +55,8 @@ const History = React.memo(() => {
   const [isDeleted, setDeleted] = useState(false)
 
   // Fetch history and preferred CV data concurrently
-  const fetchHistoryData = useCallback(async () => {
+useEffect(() => {
+  const fetchHistoryData = async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -76,30 +77,53 @@ const History = React.memo(() => {
       if (preferRes.status === "fulfilled" && preferRes.value.data?.data) {
         setPreferCV(preferRes.value.data.data);
       }
+
     } catch (err) {
       console.error("Failed to load history context:", err);
       setError("Unable to fetch analysis history. Please try again.");
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    fetchHistoryData();
-  }, [fetchHistoryData]);
+  fetchHistoryData();
+}, []);
 
-  const DeleteHistory = async () => {
-    const conf = confirm('Are you sure want to delete all your history data....')
-    if(!conf) return
-    const response = await axios.post('http://localhost:8000/delete/deletehistoryData', {
-      withCredentials : true
-    })
-    if(!response.data.success) return 
-    setDeleted(true)
+
+const DeleteHistory = async () => {
+  const conf = window.confirm(
+    "Are you sure you want to delete all your history data?"
+  );
+
+  if (!conf) return;
+
+  try {
+    const response = await axios.post(
+      "http://localhost:8000/delete/deletehistoryData",
+      {},
+      {
+        withCredentials: true,
+      }
+    );
+
+    if (!response.data.success) return;
+
+    setHistory([]);
+    setPreferCV(null);
+
+    setDeleted(true);
+
     setTimeout(() => {
-      setDeleted(false)
+      setDeleted(false);
     }, 1500);
+
+  } catch (error) {
+    console.error("Failed to delete history:", error);
+    setError("Unable to delete history. Please try again.");
   }
+};
+
+
 
   const activeData = filterType === "all" ? history : preferCV;
 
@@ -124,9 +148,9 @@ const History = React.memo(() => {
             onChange={(e) => setFilterType(e.target.value)}
             aria-label="Filter analysis history"
           >
-            <option value="all">All Resumes ({history.length})</option>
+            <option value="all">All Resumes ({history?.length})</option>
             <option value="prefer">
-              Preferred Resumes ({preferCV.length})
+              Preferred Resumes ({preferCV?.length})
             </option>
           </select>
         </div>
@@ -169,7 +193,7 @@ const History = React.memo(() => {
                 </tr>
               </thead>
               <tbody>
-                {activeData.length > 0 ? (
+                {activeData?.length > 0 ? (
                   activeData.map((item, idx) => {
                     const isAll = filterType === "all";
                     const fileName = isAll
