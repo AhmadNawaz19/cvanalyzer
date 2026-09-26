@@ -4,9 +4,11 @@ import { createToken } from "../services/jwt.service.js"
 
 export const ProviderUser = async (req, res) => {
     try {
+        console.log('the CreateProviderUser is called')
         let response = await CreateProviderUser(req.user)
-        if (!response.id) {
-            res.send('google login error')
+        console.log(response)
+        if (!response.email) {
+            res.redirect('http://localhost:5173/login')
         } else {
             const token = await createToken(response.email, response.id);
             console.log(token)
@@ -15,7 +17,7 @@ export const ProviderUser = async (req, res) => {
                     httpOnly: false,
                     secure: false
                 })
-                res.send(response)
+                 res.redirect("http://localhost:5173/profile")
             }
         }
     } catch (err) {

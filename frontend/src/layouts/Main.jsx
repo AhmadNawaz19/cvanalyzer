@@ -3,13 +3,24 @@ import './styles/main.css'
 
 const Main = React.memo(() => {
   return (
-    <div id='main'>
-        <h1>AI Resume Analyzer</h1>
-        <p>Upload your resume and get instant feedback, ATS score, and improvements.</p>
-        <button>Get Started</button>
-    </div>
+    <section id='main'>
+      <div className='hero-badge'>
+        <span className='pulse'></span> Next-Gen ATS Optimization
+      </div>
+      <h1>
+        Elevate Your Resume with <span className='highlight'>AI Precision</span>
+      </h1>
+      <p>
+        Upload your CV to get instant actionable feedback, dynamic ATS scoring, 
+        and tailored improvements for your target roles.
+      </p>
+      <div className='hero-actions'>
+        <button className='btn-primary'>Get Started</button>
+        <button className='btn-secondary'>View Demo</button>
+      </div>
+    </section>
   )
 })
 
-Main.displayName = 'main'
+Main.displayName = 'Main'
 export default Main

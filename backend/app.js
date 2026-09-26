@@ -5,10 +5,14 @@ import userRouter from "./src/router/router.user.js";
 import googleLoginRouter from './src/router/router.googleLogin.js'
 import githubLoginRouter from './src/router/router.githubLogin.js'
 import fileUploadRouter from './src/router/router.fileUpload.js'
+import dataRouter from './src/router/router.userData.js'
+import historyRouter from "./src/router/router.history.js";
 import "./src/config/config.github.js";
-import { handleMulterError } from "./src/middleware/middleware.multerError.handling.js";
 import { profileRouter } from "./src/router/router.updateprofile.js";
-import { verifyToken } from "./src/middleware/middleware.verifyToken.js";
+import {reviewRouter} from './src/router/router.reviews.js'
+
+import { handleMulterError } from "./src/middleware/middleware.multerError.handling.js";
+import { verifyToken, verifyTokenForLogin } from "./src/middleware/middleware.verifyToken.js";
 import { logout } from "./src/middleware/middleware.logout.js";
 
 import passport from "./src/config/config.google.js";
@@ -29,11 +33,16 @@ app.get('/', (req, res) => {
     res.send('helllo')
 })
 app.use('/user', userRouter)
-app.use('/auth', googleLoginRouter)
-app.use('/githubauth', githubLoginRouter)
-app.use('/file', fileUploadRouter)
+app.use('/auth', verifyTokenForLogin, googleLoginRouter)
+app.use('/githubauth', verifyTokenForLogin, githubLoginRouter)
+app.use('/file',verifyToken, fileUploadRouter)
 app.use('/profile', verifyToken, profileRouter)
 app.use('/logout', logout)
+app.use('/userData', verifyToken, dataRouter)
+app.use('/history',verifyToken, historyRouter)
+app.use('/preferCV', verifyToken, historyRouter)
+app.use('/review', reviewRouter)
+app.use('/delete',historyRouter)
 
 app.use(handleMulterError)
 

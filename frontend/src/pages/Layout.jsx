@@ -6,15 +6,17 @@ import Navbar from '../layouts/Navbar'
 
 const Layout = React.memo(() => {
     return (
-        <div className='leyoutMain'>
+        <div className='layoutMain'>
             <Navbar />
             <div className='Outlet'>
                 <SideBar />
-                <Outlet />
+                <main className='mainContent'>
+                    <Outlet />
+                </main>
             </div>
         </div>
     )
 })
 
-Layout.displayName = 'layout'
+Layout.displayName = 'Layout'
 export default Layout

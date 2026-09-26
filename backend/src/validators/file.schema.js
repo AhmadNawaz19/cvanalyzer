@@ -1,6 +1,4 @@
-import express from "express";
 import z from "zod";
-import fs from 'fs/promises'
 
 const schema = z.object({
     description : z.string().min(20, 'enter minimum 20 word description.')
@@ -20,10 +18,10 @@ export const validateFileData = async (req, res, next) => {
     const result = schema.safeParse(description)
 
     if(!result.success) {
-        for (const f of files){
-            await fs.unlink(f.path)
-        }
-        res.send(result.error.flatten().fieldErrors)
+        res.status(400).json({
+            success : false,
+            message : result.error.flatten().fieldErrors
+        })
     }else{
         next();
     }

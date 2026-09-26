@@ -66,7 +66,7 @@ const SignUp = React.memo(() => {
                 )}
 
                 <div class="userinput">
-                    <i class="fa-solid fa-at"></i>
+                    <i class="fa-solid fa-envelope"></i>
                     <input
                         {...register('email', {
                             required: 'Email is required'
@@ -105,6 +105,9 @@ const SignUp = React.memo(() => {
                 <p id='para1'>If already have Account <Link to='/login'>Login</Link> </p>
                 <p>or</p>
                 <SocialLogin />
+                <Link to="/" className="back-profile-btn">
+                    <i className="fa-solid fa-arrow-left"></i> Back to Home
+                </Link>
             </form>
         </div>
     )

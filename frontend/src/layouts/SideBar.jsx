@@ -1,37 +1,82 @@
 import React from 'react'
 import './styles/sidebar.css'
-import { FaUpload, FaHistory, FaSignOutAlt } from 'react-icons/fa'
-import { FiSettings } from "react-icons/fi";
-import { Link } from 'react-router-dom'
-import axios from 'axios';
-
+import { FaHistory, FaSignOutAlt, FaCloudUploadAlt, FaUserCircle } from 'react-icons/fa'
+import { FiSettings } from 'react-icons/fi'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useUserStore } from '../store/userDataStore'
+import axios from 'axios'
 
 const SideBar = React.memo(() => {
+  const { user, clearUser } = useUserStore()
+  const navigate = useNavigate()
 
   const logout = async () => {
-    const response = await axios.delete('http://localhost:8000/logout', {
-      withCredentials : true,
-    })
-    console.log(response.data)
+    const isLogout = window.confirm("Are you sure you want to log out?")
+    if (!isLogout) return
+
+    try {
+      await axios.delete("http://localhost:8000/logout", {
+        withCredentials: true,
+      })
+    } catch (error) {
+      console.error("Logout failed:", error)
+    } finally {
+      clearUser()
+      navigate('/login')
+    }
   }
-  
+
   return (
-    <div id='sidebar'>
-      <div className="box1">
-        <div id='userProfile'>
-          <Link to='/profile'>
-            <img id='img' src="https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original" alt="" />
-          </Link>
+    <aside id="sidebar">
+      {/* User Info Header */}
+      <div className="sidebar-user-card">
+        <NavLink to="/profile" className="avatar-wrapper">
+          {user?.profile ? (
+            <img id="img" src={user.profile} alt={user?.name || "User Profile"} />
+          ) : (
+            <FaUserCircle className="default-avatar-icon" />
+          )}
+        </NavLink>
+        <div className="user-details">
+          <h3 onClick={()=> navigate('/login')}>{user?.name || "Sign Up"}</h3>
         </div>
-        <h3>User Name</h3>
       </div>
-      <div className="box1"> <i class="fa-solid fa-cloud-arrow-up"></i> <Link to='/profile/'><h3>Upload Resume</h3></Link> </div>
-      <div className="box1"> <FaHistory /><Link to='/history'><h3>History</h3></Link></div>
-      <div className="box1"  ><FiSettings /> <Link to='/setting'><h3>Setting</h3></Link></div>
-      <div className="box1" onClick={logout} ><FaSignOutAlt /> <h3>Log Out</h3></div>
-    </div>
+
+      {/* Navigation Menu */}
+      <nav className="sidebar-nav">
+        <NavLink 
+          to="/profile" 
+          end 
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+        >
+          <FaCloudUploadAlt className="nav-icon" />
+          <span>Upload Resume</span>
+        </NavLink>
+
+        <NavLink 
+          to="/history" 
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+        >
+          <FaHistory className="nav-icon" />
+          <span>Analysis History</span>
+        </NavLink>
+
+        <NavLink 
+          to="/setting" 
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+        >
+          <FiSettings className="nav-icon" />
+          <span>Settings</span>
+        </NavLink>
+
+        <button type="button" className="nav-item logout-btn" onClick={logout}>
+          <FaSignOutAlt className="nav-icon" />
+          <span>Log Out</span>
+        </button>
+      </nav>
+    </aside>
   )
 })
 
-SideBar.displayName = 'displayname'
+SideBar.displayName = 'SideBar'
 export default SideBar

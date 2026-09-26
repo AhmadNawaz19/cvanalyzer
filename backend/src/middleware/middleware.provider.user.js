@@ -5,9 +5,11 @@ import { createToken } from "../services/jwt.service.js"
 export const ProviderUserValidation = async (req, res, next) => {
     try {
         console.log('github..',req.user)
+        console.log(req.user.email)
         if (req.user.email) {
-            let response = await checkUserExist(req.user.email, req.user.provider)
-            if (!response.email) {
+            let response = await checkUserExist(req.user.email)
+            console.log(response)
+            if (!response) {
                 next()
             } else {
                 const token = await createToken(response.email, response.id);
@@ -15,7 +17,7 @@ export const ProviderUserValidation = async (req, res, next) => {
                     httpOnly: false,
                     secure: false
                 })
-                res.send(token)
+                res.redirect("http://localhost:5173/profile")
             }
         }else{
             console.log('faile in provider user validation middleware..')

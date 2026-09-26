@@ -36,7 +36,7 @@ export const SignUp = (req, res) => {
 export const SignIn = async (req, res) => {
     try {
         const data = req.body;
-        const token = await createToken(data.email)
+        const token = await createToken(req.user.email, req.user.id )
         if (token) {
             res.cookie('token', token, {
                 httpOnly: false,

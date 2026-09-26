@@ -1,23 +1,28 @@
-import React from 'react'
-import {FaFacebook, FaGoogle, FaGithub} from 'react-icons/fa'
-
-import './styles/sociallogin.css'
-import axios from 'axios'
+import { FaGoogle, FaGithub } from 'react-icons/fa';
+import './styles/sociallogin.css';
 
 const SocialLogin = () => {
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8000/auth/google";
+  };
 
-
-  const googleLogin = async () =>{ 
-    const response = await axios.post('http://localhost:8000/socialLogin')
-  }
+  const handleGithubLogin = () => {
+    window.location.href = "http://localhost:8000/githubauth/github";
+  };
 
   return (
-        <div id="socialLogin">
-          <h4 onClick={googleLogin}><FaGoogle id='google'/> <span style={{marginLeft:'3px'}}>google</span></h4>
-          <h4><FaFacebook id='facebook'/> <span style={{marginLeft:'3px'}}>facebook</span></h4>
-          <h4><FaGithub id='github'/> <span style={{marginLeft:'3px'}}>github</span></h4>
-        </div>
-  )
-}
+    <div id="socialLogin">
+      <button type="button" className="social-btn google-btn" onClick={handleGoogleLogin}>
+        <FaGoogle className="social-icon google-icon" />
+        <span>Google</span>
+      </button>
 
-export default SocialLogin
+      <button type="button" className="social-btn github-btn" onClick={handleGithubLogin}>
+        <FaGithub className="social-icon github-icon" />
+        <span>Github</span>
+      </button>
+    </div>
+  );
+};
+
+export default SocialLogin;

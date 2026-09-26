@@ -16,16 +16,9 @@ router.get(
   "/callback/github",
   passport.authenticate("github", {
     session : false,
-    // successRedirect: "/githubauth/profile",
-    failureRedirect: "/auth/login",
+    failureRedirect: "http://localhost:5173/login",
   }), ProviderUserValidation, ProviderUser
 );
 
-router.get("/profile", (req, res) => {
-  res.json({
-    success: true,
-    user: req.user,
-  });
-});
  
 export default router;

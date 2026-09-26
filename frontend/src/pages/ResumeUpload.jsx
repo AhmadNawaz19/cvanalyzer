@@ -1,164 +1,241 @@
-import React, { useState, useEffect } from 'react'
-import './styles/resumeUpload.css'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+import React, { useState, useEffect } from "react";
+import "./styles/resumeUpload.css";
+import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { FaCloudUploadAlt, FaFilePdf, FaTrashAlt, FaSpinner, FaExclamationCircle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 
-const schema = z.object({
-  resume: z.instanceof(File, { message: "Resume is Required" })
-    .refine((file) => file.type === 'application/pdf', "Only PDF file are allowed")
-    .refine((file) => file.size <= 5 * 1024 * 1024),
-  // description: z.string().min(20, 'Description must be at least 20 characters')
-})
+
+// Zod Schema Validation
+const uploadSchema = z.object({
+  resumes: z
+    .array(
+      z
+        .instanceof(File, { message: "Invalid file object" })
+        .refine((file) => file.type === "application/pdf", "Only PDF files are allowed")
+        .refine((file) => file.size <= 5 * 1024 * 1024, "File size must be under 5MB")
+    )
+    .min(1, "At least one PDF resume is required"),
+  description: z
+    .string()
+    .min(10, "Job description must be at least 10 characters long"),
+});
 
 const ResumeUpload = React.memo(() => {
+  const navigate = useNavigate();
+  const [resumes, setResumes] = useState([]);
+  const [description, setDescription] = useState("");
+  const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
+  const [bestResume, setBestResume] = useState("");
 
-  const formData = new FormData()
-  const [data, setData] = useState({
-    resume: [],
-    description: ''
-  })
-  const [error, setError] = useState({})
-  const [serverError, setServerError] = useState('')
+  // Process and append incoming files
+  const processFiles = (fileList) => {
+    const validPdfs = [];
+    let fileError = "";
 
-  const updateResume = (fileList) => {
-    console.log('selected file: ', fileList)
-    for (let file of fileList) {
-      console.log(file)
+    Array.from(fileList).forEach((file) => {
       if (file.type !== "application/pdf") {
-        setError((prev) => ({
-          ...prev,
-          resume: "Only PDF files are allowed",
-        }));
-        return;
+        fileError = "Only PDF files are allowed";
+      } else if (file.size > 5 * 1024 * 1024) {
+        fileError = "Each PDF must be smaller than 5MB";
+      } else {
+        validPdfs.push(file);
       }
-      setData((prev) => ({
-        ...prev,
-        resume: [...prev.resume, { file }],
-      }));
+    });
 
-      setError((prev) => ({
-        ...prev,
-        resume: undefined,
-      }));
+    if (fileError) {
+      setErrors((prev) => ({ ...prev, resumes: fileError }));
+    } else {
+      setResumes((prev) => [...prev, ...validPdfs]);
+      setErrors((prev) => ({ ...prev, resumes: undefined }));
     }
+  };
+
+  const removeFile = (indexToRemove) => {
+    setResumes((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
-    updateResume(e.dataTransfer.files);
-  }
-
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(e.dataTransfer.files);
+    }
+  };
 
   const handleDragOver = (e) => {
     e.preventDefault();
   };
 
+  // React Query Mutation
   const sendResumeAndDescription = useMutation({
-    mutationFn: (data) => axios.post('http://localhost:8000/file/fileupload', data, {
-      withCredentials: true
-    }),
+    mutationFn: (formData) =>
+      axios.post("http://localhost:8000/file/fileupload", formData, {
+        withCredentials: true,
+      }),
     onSuccess: (response) => {
-      console.log('Success: ', response)
+      setServerError("");
+      const resultUrl = response.data?.data?.url;
+      if (resultUrl) {
+        setBestResume(resultUrl);
+      }
     },
     onError: (err) => {
-      console.log('Error: ', err.response.data)
-      setServerError(err.response.data.message)
-    }
-  })
+      const status = err.response?.status;
 
-  const submitData = () => {
-    console.log(data)
-    formData.append("resume", data.resume);
-    formData.append("description", data.description);
-    sendResumeAndDescription.mutate(data)
-    // const result = schema.safeParse(data)
-    // if (!result.success) {
-    //   setError(result.error.flatten().fieldErrors)
-    //   console.log(result.error.flatten().fieldErrors);
-    //   return;
-    // } else {
-    //   console.log(data)
-    // }
+  if (status === 401) {
+    navigate("/login");
+    return;
   }
+      const msg = err.response?.data?.message || err.response?.statusText || "Server error occurred during analysis";
+      setServerError(msg);
+    },
+  });
 
-  useEffect(() => {
-    console.log(error)
-  }, [error])
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setServerError("");
+
+    // Validate using Zod
+    const validation = uploadSchema.safeParse({ resumes, description });
+
+    if (!validation.success) {
+      const formattedErrors = {};
+      validation.error.issues.forEach((issue) => {
+        formattedErrors[issue.path[0]] = issue.message;
+      });
+      setErrors(formattedErrors);
+      return;
+    }
+
+    setErrors({});
+
+    // Build FormData payload
+    const formDataPayload = new FormData();
+    resumes.forEach((file) => {
+      formDataPayload.append("resume", file);
+    });
+    formDataPayload.append("description", description);
+
+    sendResumeAndDescription.mutate(formDataPayload);
+  };
 
   return (
-    <div id='resumeUpload'>
-      <div id={serverError ? "error" : null}>
+    <>
+    <div className="resumeUploadAndSelected">
+      <div id="resumeUpload">
         {serverError && (
-          <p>{serverError}</p>
+          <div id="error-toast">
+            <FaExclamationCircle />
+            <span>{serverError}</span>
+          </div>
         )}
-      </div>
-      <div>
-        <h1>Upload  Resume and Job Here! </h1>
-      </div>
 
-      <div id='mainUpload'>
-        <form onSubmit={(e) => { e.preventDefault(), submitData() }}>
-          <div id='upload'>
+        <div className="upload-title-container">
+          <h2>Upload Resume & Job Description</h2>
+          <p>Analyze match score, detect missing keywords, and get instant recommendations.</p>
+        </div>
 
-            <div
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              id="uploadhere"
-            >
-              {data.resume.length > 0 ? (
-                data.resume.map((f, idx) => {
-                  return <div key={idx}>
-                    <i className="fa-solid fa-file-pdf" style={{ fontSize: "50px", color: "red" }} />
-                    <p style={{ fontSize: '2vw', color: 'white' }}>{idx + 1}: {f.file?.name}</p>
+        <form className="main-upload-form" onSubmit={handleSubmit}>
+          <div className="upload-grid">
+            {/* Resume Upload Dropzone */}
+            <div className={`upload-card ${errors.resumes ? "has-error" : ""}`}>
+              <h3>1. Resumes (PDF)</h3>
+              <div
+                className="dropzone"
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+              >
+                {resumes.length > 0 ? (
+                  <div className="file-list">
+                    {resumes.map((file, idx) => (
+                      <div key={idx} className="file-item">
+                        <FaFilePdf className="pdf-icon" />
+                        <span className="file-name">{file.name}</span>
+                        <button
+                          type="button"
+                          className="remove-file-btn"
+                          onClick={() => removeFile(idx)}
+                          aria-label="Remove file"
+                        >
+                          <FaTrashAlt />
+                        </button>
+                      </div>
+                    ))}
+                    <label htmlFor="selectRes" className="add-more-label">
+                      + Add More PDFs
+                    </label>
                   </div>
-                })
-              ) : (
-                <>
-                  <h1><i class="fa-solid fa-cloud-arrow-up"></i></h1>
-                  <h2>Drag and Drop</h2>
-                  <h3>or</h3>
-                  <label htmlFor="selectRes">
-                    Browse file
-                  </label>
-                  <input
-                    id='selectRes'
-                    type="file"
-                    name='resume'
-                    multiple
-                    onChange={(e) => updateResume(e.target.files)}
-                  />
-                </>
-              )}
-
-              {
-                error.resume && (
-                  <p style={{ marginBottom: '20px', color: "red" }}>{error.resume}</p>
-                )
-              }
+                ) : (
+                  <div className="dropzone-placeholder">
+                    <FaCloudUploadAlt className="upload-icon" />
+                    <p className="drag-text">Drag & drop your resume PDFs here</p>
+                    <span className="or-text">or</span>
+                    <label htmlFor="selectRes" className="browse-btn">
+                      Browse Files
+                    </label>
+                  </div>
+                )}
+                <input
+                  id="selectRes"
+                  type="file"
+                  name="resume"
+                  accept="application/pdf"
+                  multiple
+                  onChange={(e) => processFiles(e.target.files)}
+                />
+              </div>
+              {errors.resumes && <span className="field-error">{errors.resumes}</span>}
             </div>
 
+            {/* Job Description TextArea */}
+            <div className={`upload-card ${errors.description ? "has-error" : ""}`}>
+              <h3>2. Job Description</h3>
+              <textarea
+                placeholder="Paste the target job description or requirements here..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={10}
+              />
+              {errors.description && (
+                <span className="field-error">{errors.description}</span>
+              )}
+            </div>
           </div>
 
-          <button id='uploadbtn' type='submit'>Upload</button>
-
-          <div id='uploadjob'>
-            <textarea
-              placeholder={error.description ? error.description : "Enter Description"}
-              onChange={(e) => setData({ ...data, description: e.target.value })}
-              style={{ color: error.description ? 'red' : null }}
-              name='description'
-            />
+          <div className="action-row">
+            <button
+              type="submit"
+              className="submit-analyze-btn"
+              disabled={sendResumeAndDescription.isPending}
+            >
+              {sendResumeAndDescription.isPending ? (
+                <>
+                  <FaSpinner className="spinner-icon" />
+                  <span>Analyzing Resumes...</span>
+                </>
+              ) : (
+                <span>Analyze Resume Match</span>
+              )}
+            </button>
           </div>
-
         </form>
       </div>
 
+      {/* Selected Resume PDF Viewer */}
+      {bestResume && (<div id="selectedResume">
+          <div className="preview-header">
+            <h3>Top Matched Resume Preview</h3>
+          </div>
+          <iframe src={bestResume} title="Top Matched Resume Preview" />
+        </div>)}
+        
     </div>
-  )
-})
+    </>
+  );
+});
 
-ResumeUpload.displayName = 'resumeupload'
-export default ResumeUpload
+ResumeUpload.displayName = "ResumeUpload";
+export default ResumeUpload;

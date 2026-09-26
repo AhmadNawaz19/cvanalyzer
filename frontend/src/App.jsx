@@ -9,6 +9,7 @@ import History from './pages/History'
 import Login from './pages/Login'
 import SignUp from './pages/SignUp'
 import Setting from './pages/Setting'
+import AllReviews from './pages/AllReviews'
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
         <Route path='/profile' element={<Profile/>} />
         <Route path='/login' element={<Login/>} />
         <Route path='/signup' element={<SignUp/>} />
+        <Route path='/reviews' element={<AllReviews/>} />
         <Route element={<Layout/>}>
            <Route path='/profile/' element={<ResumeUpload/>} />
            <Route path='/history' element={<History/>} />

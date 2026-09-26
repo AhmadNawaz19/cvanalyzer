@@ -4,13 +4,6 @@ import passport from '../config/config.google.js'
 import { ProviderUser } from '../controller/controller.provider.user.js'
 import { ProviderUserValidation } from '../middleware/middleware.provider.user.js'
 
-router.get('/login', (req, res) => {
-  res.send('please login again')
-})
-
-router.get('/profile', (req, res) => {
-  res.send('login succesfully')
-})
 
 router.get(
     "/google",
@@ -21,9 +14,8 @@ router.get(
   router.get(
   "/google/callback",
   passport.authenticate("google", {
-    // successRedirect:"/auth/profile",
     session : false,
-    failureRedirect: "/auth/login",
+    failureRedirect: "http://localhost:5173/login",
   }),
   ProviderUserValidation,
   ProviderUser

@@ -1,32 +1,156 @@
-import React from 'react'
-import './styles/review.css'
+import React, { useEffect, useState } from "react";
+import { FaStar, FaUserCircle, FaPaperPlane } from "react-icons/fa";
+import "./styles/review.css";
+import { useUserStore } from "../store/userDataStore";
+import { Link } from "react-router-dom";
+import axios from "axios";
+
 
 const Review = React.memo(() => {
+  const [reviews, setReviews] = useState([]);
+  const [newReview, setNewReview] = useState("");
+  const [rating, setRating] = useState(5);
+  const { user } = useUserStore();
+  const [isSuccess, setSuccess] = useState(false)
 
-    const reviews = [
-        { img: "https://static.vecteezy.com/system/resources/thumbnails/005/346/410/small/close-up-portrait-of-smiling-handsome-young-caucasian-man-face-looking-at-camera-on-isolated-light-gray-studio-background-photo.jpg", name: "Zohaib Khan", message: "this tool is one of the best tool. it very perfect analyze the resume. and give weak point." },
-        { img: "https://images.unsplash.com/photo-1615109398623-88346a601842?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWFufGVufDB8fDB8fHww", name: "Aman Khan", message: "this tool is one of the best tool. it very perfect analyze the resume. and give weak point." },
-        { img: "https://media.istockphoto.com/id/2165425195/photo/portrait-of-a-man-in-an-office.jpg?s=612x612&w=0&k=20&c=CoKXlahdZicUmnzglzCxmK1qo0qlrO6za2e9-Yjt8b4=", name: "Murtaza Khan", message: "this tool is one of the best tool. it very perfect analyze the resume. and give weak point." }
-    ]
 
-    return (
-        <div id='review'>
-            <h1>Reviews</h1>
-            <div id="cards">
-                {
-                    reviews.map((val, idx) => {
-                        return <div key={idx} className="reviewCard">
-                            <img src={val.img} alt="" />
-                            <h2>{val.name}</h2>
-                            <p>{val.message}</p>
-                        </div>
-                    })
-                }
+  const submiteReview = async (review)=> {
+    const response = await axios.post('http://localhost:8000/review/postReview', review, {
+      withCredentials: true,
+    })
+    if(!response.data.success) {
+      setSuccess(false)
+    }else{
+      setSuccess(true)
+      setTimeout(() => {
+        setSuccess(false)
+      }, 1500);
+    }
+  }
 
-            </div>
+  const handleSubmitReview = (e) => {
+    e.preventDefault();
+    if (!newReview.trim()) return;
+
+    const userReview = {
+      rating: rating,
+      message: newReview,
+    };  
+    submiteReview(userReview)
+    setNewReview("");
+  };
+
+  useEffect(() => {
+    const fetchReview = async () => {
+      const response = await  axios.get('http://localhost:8000/review/getReview')
+    setReviews(response.data.data)
+    }
+    fetchReview()
+  }, []);
+
+  return (
+    <section id="review">
+      <div className="review-header">
+        <h2>What Applicants Say</h2>
+        <p>
+          Real feedback from job seekers who optimized their resumes and landed
+          interviews.
+        </p>
+      </div>
+
+      {/* Logged-In User Input Form */}
+      <form className="user-review-form" onSubmit={handleSubmitReview}>
+        <div className="form-header">
+          {user?.profile ? (
+            <img src={user?.profile} alt={user?.name} className="user-avatar" />
+          ) : (
+            <FaUserCircle className="user-icon-placeholder" />
+          )}
+          <div>
+            {user?.profile ? (
+              <h4>{user?.name}</h4>
+            ) : (
+              <Link to={"/login"}>Sign Up</Link>
+            )}
+          </div>
         </div>
-    )
-})
 
-Review.displayName = 'review'
-export default Review
+            
+
+        {user?.profile && (
+          
+          <div className="rating-select">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <FaStar
+                key={star}
+                className={`star-select ${star <= rating ? "selected" : ""}`}
+                onClick={() => setRating(star)}
+              />
+            ))}
+          </div>
+        )}
+
+        {user?.profile ? (
+          <>
+            <textarea
+              placeholder="Share your experience with AI Resume Analyzer..."
+              value={newReview}
+              onChange={(e) => setNewReview(e.target.value)}
+              rows="3"
+              required
+            />
+
+            <button type="submit" className="submit-review-btn">
+              <FaPaperPlane /> Placed Review
+            </button>
+          </>
+        ) : (
+          <h1 style={{color: 'blue'}}>Placed Review</h1>
+        )}
+      </form>
+
+
+        {
+          isSuccess && (
+            <div className="isSucess">
+              <h1>⭐ Thanks for the rating!</h1>
+            </div>
+          )
+        } 
+
+      {/* Testimonial Cards Grid */}
+      <div id="cards">
+        {reviews?.map((val) => (
+          <div
+            key={val.id}
+            className={`reviewCard`}
+          >
+
+            <div className="card-top">
+              {val.user.profile ? (
+                <img src={val.user.profile} alt={val.user.name} />
+              ) : (
+                <FaUserCircle className="card-avatar-fallback" />
+              )}
+              <div className="user-details">
+                <h3>{val.user.name}</h3>
+              </div>
+            </div>
+
+            <div className="stars">
+              {[...Array(val.rating)].map((_, i) => (
+                <FaStar key={i} className="star-icon" />
+              ))}
+            </div>
+
+            <p>"{val.message}"</p>
+          </div>
+        ))}
+      </div>
+      <Link to={'/reviews'}><h2 className="AllReviewBtn">View All Review</h2></Link>
+    </section>
+  );
+});
+
+Review.displayName = "Review";
+export default Review;
